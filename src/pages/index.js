@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useStaticQuery, graphql } from 'gatsby';
 
 import Layout from '../components/common/layout';
-import Image from '../components/common/image';
+// import Image from '../components/common/image';
 import SEO from '../components/common/seo';
 
 const IndexPage = () => {
