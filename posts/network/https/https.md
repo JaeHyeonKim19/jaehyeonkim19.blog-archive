@@ -1,7 +1,7 @@
 ---
 title: 'Https?'
 date: 2020-01-01 08:26:28 -0400
-categories: 'network/20200101https'
+path: 'network/20200101https'
 ---
 
 ## Http?
