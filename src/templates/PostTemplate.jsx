@@ -1,5 +1,6 @@
 import React from 'react';
 import Layout from '../components/common/layout';
+import Utterances from '../components/utterances/Utterances';
 
 const PostTemplate = React.memo(props => {
   const { title, date, html } = props.pageContext;
@@ -9,6 +10,7 @@ const PostTemplate = React.memo(props => {
       <h4>{date}</h4>
       <hr />
       <div dangerouslySetInnerHTML={{ __html: html }} />
+      <Utterances />
     </Layout>
   );
 });
