@@ -13,6 +13,7 @@ exports.createPages = async ({ actions, graphql }) => {
               path
               date
             }
+            fileAbsolutePath
           }
         }
       }
@@ -21,8 +22,14 @@ exports.createPages = async ({ actions, graphql }) => {
   if (errors) throw errors;
 
   data.allMarkdownRemark.edges.forEach(({ node }) => {
+    const pathNodes = node.fileAbsolutePath.split('/');
+    const newPathNodes = [];
+    newPathNodes.push(pathNodes[pathNodes.length - 3]);
+    newPathNodes.push(pathNodes[pathNodes.length - 2]);
+    newPathNodes.push(node.frontmatter.date);
+    const stringNewPathNodes = newPathNodes.join('/');
     createPage({
-      path: node.frontmatter.path,
+      path: stringNewPathNodes,
       context: {
         html: node.html,
         title: node.frontmatter.title,

@@ -15,9 +15,10 @@ const IndexPage = () => {
             frontmatter {
               title
               path
-              date(formatString: "YYYY-MM-DD HH:mm:ss")
+              date
             }
             id
+            fileAbsolutePath
           }
         }
       }
@@ -30,16 +31,24 @@ const IndexPage = () => {
       <SEO title="Home" />
       <h1>최근 작성한 게시글 목록</h1>
       <ul>
-        {data.allMarkdownRemark.edges.map(({ node }) => (
-          <li key={node.id}>
-            <h2>
-              <Link to={node.frontmatter.path}>{node.frontmatter.title}</Link>
-            </h2>
-            <h3>{node.frontmatter.date}</h3>
-            <p>{node.excerpt}</p>
-            <hr />
-          </li>
-        ))}
+        {data.allMarkdownRemark.edges.map(({ node }) => {
+          const pathNodes = node.fileAbsolutePath.split('/');
+          const newPathNodes = [];
+          newPathNodes.push(pathNodes[pathNodes.length - 3]);
+          newPathNodes.push(pathNodes[pathNodes.length - 2]);
+          newPathNodes.push(node.frontmatter.date);
+          const stringNewPathNodes = newPathNodes.join('/');
+          return (
+            <li key={node.id}>
+              <h2>
+                <Link to={stringNewPathNodes}>{node.frontmatter.title}</Link>
+              </h2>
+              <h3>{node.frontmatter.date}</h3>
+              <p>{node.excerpt}</p>
+              <hr />
+            </li>
+          );
+        })}
       </ul>
     </Layout>
   );
