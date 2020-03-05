@@ -1,7 +1,7 @@
 ---
 title: '[자바]코드업 2608 동아리 회장 선거'
 date: 2020-03-05 09:00:00 +0900
-path: 'codingtest/20200305club_president_election'
+path: 'codingtest/20200305codeup_2608_club_president_election'
 ---
 
 ```java
