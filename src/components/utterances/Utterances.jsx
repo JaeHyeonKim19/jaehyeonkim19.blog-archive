@@ -21,7 +21,7 @@ const Utterances = React.memo(() => {
     });
 
     containerRef.current.appendChild(utterances);
-  }, []);
+  }, [containerRef]);
 
   return <div ref={containerRef} />;
 });
