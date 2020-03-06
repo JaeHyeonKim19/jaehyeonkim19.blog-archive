@@ -11,22 +11,16 @@ import java.util.*;
 public class Main {
 	public static void main(String[] args) throws IOException{
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		int gap = Math.abs(Integer.parseInt(st.nextToken()) - Integer.parseInt(st.nextToken()));
-		int count = 0;
-		while(gap >= 8) {
-			count++;
-			gap = Math.abs(gap - 10);
-		}
-		while(gap >= 3) {
-			count++;
-			gap = Math.abs(gap - 5);
-		}
-		while(gap != 0) {
-			count++;
-			gap -= 1;
-		}
-		System.out.print(count);
+		int n = Integer.parseInt(br.readLine());
+	 	int [] changes = {50000, 10000, 5000, 1000, 500, 100, 50, 10};
+	 	int answer = 0;
+	 	for(int i = 0; i < changes.length; i++) {
+	 		while(n / changes[i] > 0) {
+	 			answer += n / changes[i];
+	 			n %= changes[i];
+	 		}
+	 	}
+	 	System.out.print(answer);
 	}
 }
 ```
