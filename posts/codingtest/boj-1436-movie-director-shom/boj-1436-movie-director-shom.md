@@ -1,5 +1,5 @@
 ---
-title: '백준 1436 영화감독 숌'
+title: '[자바]백준 1436 영화감독 숌'
 date: 2020-03-18 09:00:00 +0900
 path: 'codingtest/20200318boj_1436_movie_director_shom'
 ---
