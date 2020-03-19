@@ -1,7 +1,7 @@
 ---
-title: '[자바]백준 15651 N과 M(3)'
-date: 2020-02-16 08:26:28 -0400
-path: 'codingtest/20200216boj_15651_n_and_m'
+title: '[자바]백준 15651 N과 M (3)'
+date: 2020-02-16 08:26:28 +0900
+path: 'codingtest/20200216boj_15651_n_and_m_3'
 ---
 
 ```java
