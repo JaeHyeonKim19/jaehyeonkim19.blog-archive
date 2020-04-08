@@ -26,18 +26,30 @@ const IndexPage = () => {
   `;
   const data = useStaticQuery(query);
 
+  function makeStringNewPathNodes(node) {
+    const pathNodes = node.fileAbsolutePath.split('/');
+    const newPathNodes = [];
+    if (pathNodes.length === 9) {
+      const fileName = pathNodes[pathNodes.length - 1];
+      const pureFileName = fileName.substring(0, fileName.length - 3);
+      newPathNodes.push(pathNodes[pathNodes.length - 2]);
+      newPathNodes.push(pureFileName);
+      newPathNodes.push(node.frontmatter.date);
+    } else {
+      newPathNodes.push(pathNodes[pathNodes.length - 3]);
+      newPathNodes.push(pathNodes[pathNodes.length - 2]);
+      newPathNodes.push(node.frontmatter.date);
+    }
+    return newPathNodes.join('/');
+  }
+
   return (
     <Layout>
       <SEO title="Home" />
       <h1>최근 작성한 게시글 목록</h1>
       <ul>
         {data.allMarkdownRemark.edges.map(({ node }) => {
-          const pathNodes = node.fileAbsolutePath.split('/');
-          const newPathNodes = [];
-          newPathNodes.push(pathNodes[pathNodes.length - 3]);
-          newPathNodes.push(pathNodes[pathNodes.length - 2]);
-          newPathNodes.push(node.frontmatter.date);
-          const stringNewPathNodes = newPathNodes.join('/');
+          const stringNewPathNodes = makeStringNewPathNodes(node);
           return (
             <li key={node.id}>
               <h2>
