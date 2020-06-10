@@ -50,12 +50,13 @@ const IndexPage = () => {
       <ul>
         {data.allMarkdownRemark.edges.map(({ node }) => {
           const stringNewPathNodes = makeStringNewPathNodes(node);
+          const yearMonthDate = node.frontmatter.date.split(" ")[0];
           return (
             <li key={node.id}>
               <h2>
                 <Link to={stringNewPathNodes}>{node.frontmatter.title}</Link>
               </h2>
-              <h3>{node.frontmatter.date}</h3>
+              <h3>{yearMonthDate}</h3>
               <p>{node.excerpt}</p>
               <hr />
             </li>
