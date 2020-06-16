@@ -6,6 +6,8 @@ path: 'computerArchitecture/202006111-computer-abstractions-and-technology'
 
 > 본 글은 영남대학교 최규상 교수님의 [컴퓨터 구조](http://www.kocw.net/home/cview.do?cid=184062fa9a833237) 강의를 듣고 작성된 글입니다.
 
+### 1.1 Introduction
+
 컴퓨터 기술은 [무어의 법칙(Moore's Law)](https://ko.wikipedia.org/wiki/%EB%AC%B4%EC%96%B4%EC%9D%98_%EB%B2%95%EC%B9%99)에 따라 급격하게 발전해왔다. 이렇게 급격한 발전한 컴퓨터 기술에 의해서 다양한 어플리케이션이 가능하게 되었다.
 
 > 무어의 법칙: 반도체 직접회로의 성능이 24개월마다 2배로 증가한다는 법칙. 실제로는 2배보다 더 빠르게 늘어왔음.
@@ -103,4 +105,88 @@ Exabyte: 1024 petabytes(2^60 bytes)
 		- Encoded instructions and data
 
 ![level-of-language](./level-of-language.png)
+
+### 1.4 Under the Covers
+
+- 대부분의 컴퓨터들은 비슷한 구성요소를 가지고 있다
+	- 입/출력 장치
+		- 유저 인터페이스 장치
+			- 디스플레이, 키보드, 마우스, 터치 스크린 등
+		- 저장 장치
+			- 하드디스크, 시디 등
+		- 네트워크 어댑터
+			- 다른 컴퓨터와 통신하기위해 필요
+
+- 프로세서(CPU) 내부에는
+	1. 데이터 패스
+		- 데이터가 어떻게 연산되는지 
+	2. 컨트롤
+		- 프로세서에 있는 다양한 컴포넌트들을 컨트롤 하는 것
+	3. 캐시 메모리
+		- SRAM으로 구성된 메모리에 자주쓰는 데이터를 올려두는 곳
+
+- 추상화(Abstraction)
+	- 아주 복잡한 문제를 단순화해서 쉽게 풀 수 있도록하는 기법
+		- ex) Instruction set architecture(ISA): The hardware/software interface
+	
+- 저장 장치
+	- 휘발성 메인 메모리
+		- 전원이 꺼지면 데이터들이 지워짐
+	- 비휘발성 세컨더리 메모리
+		- 마그네틱 디스크
+		- 플래시 메모리
+		- 옵티컬 디스크
+
+- 네트워크
+	- LAN, WAN, 와이파이, 블루투스 등
+
+### 1.5 Technologies for Building Processors and Memory
+
+Electronics technology는 계속 발전해왔다. 용량과 성능은 향상되고 가격은 저렴해졌다. 그 발전 양상은 아래표를 보면 상대적으로 알 수 있다.
+
+|Year|Technology|Relative performance/cost|
+|---|---|---|
+|1951|진공관|1|
+|1965|트랜지스터|35|
+|1975|IC(Integrated circuit)|900|
+|1995|VLSI(Very large scale IC)|2,400,000|
+|2013|Ultra large scale IC|250,000,000,000|
+
+### 1.6 Performance
+
+- Response time
+	- 하나의 일을 하는데 소요되는 시간
+- Throughput
+	- 단위시간당 얼마나 많은 일을 할 수 있는가?
+
+- 더 빠른 CPU로 교체 시?
+	- Response time 짧아짐
+	- Throughput 증가
+- CPU를 추가하면?
+	- Response time 그대로
+	- Throughput 증가
+
+Response time이 줄어들면 Throughput은 무조건 줄어들지만 Throughput이 줄어든다고해서 Response time이 줄어드는 것은 아니다. 컴퓨터 구조에서 퍼포먼스는 Response time 또는 Throughput으로 이야기하는데, 우리는 Response time에 집중해서 살펴보도록 하겠다.
+
+__Performance = 1/Execution Time__
+
+- `X is n time faster than Y`
+	- `Performance X/Performance Y = Execution time Y/Execution time X = n`
+
+- Measuring Execution time
+	- Elapsed time(시스템 퍼포먼스를 정의할 때 사용)
+		- Total response time, including all aspects
+			- Processing, I/O, OS overhead, idle time
+	- CPU time
+		- Time spent processing a given job
+		- user CPU time, system CPU time
+		- 프로그램에 따라 CPU나 시스템의 영향이 다를 수 있다.(어떤 프로그램은 CPU 성능, 어떤 프로그램은 I/O의 엉향 다양하게 영향을 미칠 수 있다.)
+
+- CPU Clocking
+	- Rising edge to Rising edge = Clock period
+
+- Clock rate(clock cycles per second in MHz or GHz) is inverse of clock cycle time(clock period)
+```
+CC = 1 / CR
+```
 
