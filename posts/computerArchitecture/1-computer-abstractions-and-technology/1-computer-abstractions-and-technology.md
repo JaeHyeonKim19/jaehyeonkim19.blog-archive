@@ -190,3 +190,33 @@ __Performance = 1/Execution Time__
 CC = 1 / CR
 ```
 
+- CPU Time
+	- 퍼포먼스는 다음의 경우에 향상된다.
+		- 클락 사이클의 감소
+		- 클락 레이트의 증가
+	- 따라서 하드웨어 디자이너들은 클락 사이클과 클락 레이트에 유의해서 설계해야 한다.
+```
+CPU Time = CPU Clock Cycles X Clock Cycle Time = CPU Clock Cycles / Clock Rate
+```
+
+- Instruction Count and CPI(Cycles per Instruction)
+	- Instruction의 수는 프로그램, [ISA](https://en.wikipedia.org/wiki/Instruction_set_architecture), 컴파일러에 의해 결정된다.
+	- CPI는 CPU에 의해서 결정되며, 명령어들이 다른 CPI를 가질 경우 평균 CPI를 사용하여야 한다.
+
+```
+Clock Cycles = Instruction X Cycles per Instruction
+CPU Time = Instruction Count X CPI X Clock Cycle Time
+= Instruction Count X CPI / Clock Rate
+```
+
+- Instruction의 종류가 다양할 때는 Weighted average CPI를 사용해야한다.
+
+![weighted-average-cpi](./weighted-average-cpi.jpg)
+
+- Performance Summary
+	- 퍼포먼스는 알고리즘, 프로그래밍 언어, 컴파일러, ISA에 의존적이다.
+
+```
+CPU Time = Instructions / Program X Clock cycles / Instruction X Seconds / Clock cycle
+```
+
