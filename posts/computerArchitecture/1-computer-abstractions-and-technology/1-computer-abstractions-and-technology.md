@@ -220,3 +220,75 @@ CPU Time = Instruction Count X CPI X Clock Cycle Time
 CPU Time = Instructions / Program X Clock cycles / Instruction X Seconds / Clock cycle
 ```
 
+### 1.7 The Power Wall
+
+Clock Rate(Frequency)는 2004년까지 가파르게 증가하다 이후로는 유지되고 있고 전력소모 또한 2004년까지 같이 증가하다 그 이후로는 조금씩 감소하는 경향을 보이고 있다.
+
+우리가 사용하는 칩의 전력소모량은 다음 공식으로 구할 수 있다.
+```
+Power = Capacitive load X Voltage^2 X Frequency
+```
+
+2004년까지의 기간 동안 Freqency는 1000배 증가한 반면 Power는 30배 가량 증가하였는데, 그 이유는 Voltage가 1/5배(5V -> 1V)로 감소하였기 때문이다.
+
+- Power wall 이란?
+	- 우린 더 이상 전력을 낮출 수 없다.
+	- 그 말은 발생하는 열의 양을 더 이상 낮출 수 없다는 뜻이다.
+
+2004년 부터 Clock Rate을 더 이상 증가 시킬 수 없었던 이유는 전력을 낮출 수 가 없어 발생하는 열을 없앨 수 없었기 때문이다. 따라서 이 때 부터는 다른 방법으로 성능을 향상시켜야 했다. 그 방법이 바로 __멀티코어__ 다.
+
+### 1.8 The Sea Change: The Switch to Multiprocessors
+
+멀티코어는 하나의 칩에 여러개의 프로세스를 넣은 것을 말한다.(흔히들 말하는 멀티코어!)
+
+단 멀티코어에서 성능향상을 이루기 위해서는 parallel programming이 요구된다. 하지만 parallel programming을 위해서는
+1. parallel programming에 맞게 프로그램을 작성해야한다.
+2. 로드 밸런싱을 고려해야 한다.
+3. 커뮤니케이션과 동기화를 최적화 해야한다.
+
+그래서 유니코어에 비해서 멀티코어에서는 성능향상을 이루기가 어렵다.
+
+### 1.9 Concluding Remarks
+
+- Cost/performance is improving
+	- Due to underlying technology development
+- Hierachial layers of abstraction
+	- In both hardware and software
+- Instruction set architecture
+	- The hardware/software interface
+- Execution time: the best performace measure
+- Power is a limiting factor
+	- Use parallelism to improve performance
+
+### 1.10 Fallacies and Pitfalls
+
+- [Amdahl's Law](https://ko.wikipedia.org/wiki/%EC%95%94%EB%8B%AC%EC%9D%98_%EB%B2%95%EC%B9%99)
+	- 컴퓨터 시스템의 일부분을 개선 할 경우에 전체적으로 얼마만큼의 성능 향상이 있는지 계산하는 데 사용된다.
+```
+T(improved) = T(affected) / improvement factor + T(unaffected)
+```
+즉, 성능 향상된 일부가 전체에서 차지하는 분율만큼 전체 성능 향상에 기여한다는 뜻.
+
+전체 시스템 성능을 많이 향상 시키고 싶으면 시스템에서 차지하는 분율이 큰 부분을 개선해야한다.(make the common case fast)
+
+#### Fallacy: Low Power at Idle
+
+- i7 파워 벤치마크를 살펴보면
+	- 100% load 일 경우에는 258W
+	- 50% load 일 경우에는 170W
+	- 10% load 일 경우에는 121W
+	- 10%만 load 했을 경우에는 전력도 10%일 것 같지만 실제로는 10%보다 훨씬 많은 전력을 소모한다.
+
+- 구글 데이터 센터를 살펴보면 대부분 10 ~ 50% load된 상태로 동작한다. 100% load되는 경우는 전체 작동시간의 1%도 되지 않는다.
+- 따라서, 우리는 프로세서를 만들 때 전력소모를 load에 비례하도록 만들어야 한다.
+
+#### Pitfall: MIPS as a Performance Metric
+
+- MIPS: Millions of Instructions Per Second
+- 기존에는 MIPS를 퍼포먼스의 척도로 사용했는데, 다음과 같은 이유로 MIPS를 퍼포먼스의 척도로 사용하는 것은 적합하지 않다.
+	- 컴퓨터마다 ISA가 다르다.
+	- 명령어마다 복잡성이 다르다.
+
+![mips](./mips.png)
+
+- 위 공식을 보면 MIPS는 CPI의 영향을 받는다. 그런데 CPI는 CPU와 프로그램에 따라 바뀔 수 있다. 따라서 MIPS는 정확한 성능 측정 단위라고 할 수 없다. MIPS 대신 SEPC CPU Benchmark와 같은 프로그램을 사용하는게 더 정확한 성능 측정 방법이다.
