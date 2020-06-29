@@ -42,8 +42,8 @@ path: 'computerArchitecture/202006242-instructions-language-of-the-computer'
 
 #### Design Principle 1: Simplicity favours regularity (Regularity를 사용해서 간단하게 만들어라)
 
-- 어떤 규칙성을 주면 구현할 때 훨씬 편리하다.
-- 간단하게 만들어야 낮은 cost로 높은 성능을 낼 수 있다.
+>- 어떤 규칙성을 주면 구현할 때 훨씬 편리하다.
+>- 간단하게 만들어야 낮은 cost로 높은 성능을 낼 수 있다.
 
 ### 2.3 Operands of the Computer Hardware
 
@@ -59,8 +59,8 @@ path: 'computerArchitecture/202006242-instructions-language-of-the-computer'
 
 #### Design Principle 2: Smaller is faster
 
-- c.f. main memory: millions of locations
-	- 메인메모리는 레지스터에 비교하면 훨씬 크다. 그래서 메인메모리에 접근하는 시간이 레지스터에 접근하는 시간보다 훨씬 오래 걸린다.
+>- c.f. main memory: millions of locations
+>	- 메인메모리는 레지스터에 비교하면 훨씬 크다. 그래서 메인메모리에 접근하는 시간이 레지스터에 접근하는 시간보다 훨씬 오래 걸린다.
 
 - Register Operand 예제
 	- C code: f = (g + h) - (i + j);
@@ -137,8 +137,8 @@ path: 'computerArchitecture/202006242-instructions-language-of-the-computer'
 		- addi $s2, $s1, -1
 
 #### Design Principle 3: Make the common case fast
-- Small constants are common
-- Immediate operand avoids a load instruction
+>- Small constants are common
+>- Immediate operand avoids a load instruction
 
 - The Constant Zero
 	- MIPS register 0($zero) is the constant 0
@@ -146,4 +146,209 @@ path: 'computerArchitecture/202006242-instructions-language-of-the-computer'
 	- Useful for common operations
 		- E.g., move between registers
 		- add $t2, $s1, $zero
-		
+
+### 2.4 Signed and Unsigned Numbers
+
+- Unsigned Binary Integers
+	- Given an n-bit number
+		- ![binary-number](./binary-number.png)
+		- Range: 0 to 2^n - 1
+
+- 2s-Complement(2의 보수) Signed Integers
+	- Given an n-bit number
+		- ![2s-complement-signed-integers](./2s-complement-signed-integers.png)
+		- Range: -2^(n-1) to 2^(n-1) - 1
+	- Bit 31(MSB) is sign bit
+		- 1 for negative numbers
+		- 0 for non-negative numbers
+
+- Signed Negation
+	- Complement and add 1
+	- 여기서 Complement란 1 -> 0, 0 -> 1와 같이 바꿔주는 것
+
+- Sign Extension
+	- Representing a number using more bits(2진수를 8진수, 32진수와 같이 더큰 진수로 나타내는 것. 그리고 이 때 값과 부호는 유지되어야 한다.)
+		- Preserve the numeric value
+	- In MIPS instruction set
+		- addi: extend immediate value
+		- lb, lh: extend loaded byte/halfword
+		- beq, bne: extend the displacement
+	- Replicate the sign bit to the left
+		- c.f. unsigned values: extend with 0s
+	- Examples: 8-bit to 16-bit
+		- +2: 0000 0010 => 0000 0000 0000 0010
+		- -2: 1111 1110 => 1111 1111 1111 1110
+
+### 2.5 Representing Instructions in the Computer
+
+- Representing Instructions
+	- Instructions are encoded in binary
+		- Called machine code
+	- MIPS instructions
+		- Encoded as 32-bit instruction words
+		- Small number of formats encoding operationn code (opcode), register numbers, ...
+		- Regularity!(이전에 이야기했던 디자인 원칙 1에 해당)
+	- Register numbers
+		- $t0 - $t7 are reg's 8 - 15
+		- $t8 - $t9 are reg's 24 - 25
+		- $s0 - $s7 are reg's 16 - 23
+
+- MIPS R-format Instructions
+	- ![mips-r-format-instructions](./mips-r-format-instructions.png)
+	- Instruction fields
+		- op: operation code (opcode)
+		- rs: first source register number
+		- rt: second source register number
+		- rd: destination register number
+		- shamt: shift amount (00000 for now)
+		- funct: function code (extends opcode)
+	- Example
+		- ![r-format-example](./r-format-example.png)
+
+- Hexadecimal
+	- Base 16
+		- Compact representation of bit strings
+		- 4 bits per hex digit
+
+- MIPS I-format Instructions
+	- ![mips-i-format-instructions](./mips-i-format-instructions.png)
+	- Immediate arithmetic and load/store instructions
+		- rt: destination or source register number
+		- Constant: -2^15 to +2^15 - 1
+		- Address: offset added to base address in rs
+
+#### Design Principle 4: Good design demands good compromises
+
+>- Different formats complicate decoding, but allow 320bit instructions uniformly
+>- Keep formats as similar as possible
+>- MIPS I-format instructions를 살펴보면 Immediate arithmetic 과 load/store instructions는 서로 다른 명령이지만 같은 포맷을 가진다. 이것이 바로 good compromises.
+
+- Stored Program Computers
+![stored-program-computers](./stored-program-computers.png) 
+	- Instructions represented in binary, just like data
+	- Instructions and data stored in memory
+	- Programs can operate on programs
+		- e.g., compilers, linkers, ...
+	- Binary comptibility allows compiled programs to work on different computers
+		- 표준화된 ISA가 지원되면 가능하다.(Standardized ISAs)
+
+### 2.6 Logical Operations
+
+- Logical Operations(논리 연산)
+	- Instructions for bitwise manipulation 
+
+	|Operation|C|Java|MIPS|
+	|---|---|---|---|
+	|Shift left|<<|<<|sll|
+	|Shift right|>>|>>>|srl|
+	|Bitwise AND|&|&|and, andi|
+	|Bitwise OR|\||\||or, ori|
+	|Bitwise NOT|~|~|nor|
+
+	- Useful for extracting and inserting groups of bits in a word
+
+- Shift Operations
+
+	![shift-operations](./shift-operations.png)
+
+	- shamt: how many positions to shift
+	- Shift left logical
+		- Shift left and fill whit 0 bits
+		- sll bt i bits multiplies by 2^i
+	- Shift right logical
+		- Shift right and fill with 0 bits
+		- srl by i bits divides by 2^i (unsigned only)
+
+- AND Operations
+	- Useful to mask bits in a word
+		- Select some bits, clear others to 0
+
+- OR Operations
+	- Useful to include bits in a word
+		- Set some bits to 1, leave others unchanged
+
+- NOT Operations
+	- Useful to innvert bits in a word
+		- Change 0 to 1, and 1 to 0
+	- MIPS has NOR 3-operand instruction
+		- a NOR b == NOT (a OR b)
+
+### 2.7 Instructions for Making Decisions
+
+- Conditional Operations
+	- Branch to a labeled instruction if a condition is true
+		- Otherwise, continue sequentially
+	- beq rs, rt, L1
+		- if (rs == rt) branch to instruction labeled L1;
+	- bne rsm rtm L1
+		- if (rs != rt) branch to instruction labeled L1;
+	- j L1
+		- unconditional jump to instruction labeled L1
+
+- Compiling If Statements
+	- C code
+		```
+		if (i==j) f = gh;
+		else f = g-h;
+		```
+		- f, g, ... in $s0, $s1, ...
+	- Compiled MIPS code
+		```
+			bne $s3, $s4, Else
+			add $s0, $s1, $s2
+			j Exit
+		Else: sub $s0, $s1, $s2
+		Exit: ... <- Assembler calculates addresses
+		```
+
+- Compiling Loop Statements
+	- C code
+		```
+		while (save[i] == k) i += 1;
+		```
+		- i in $s3, k in $s5, address of save in $s6
+	- Compiled MIPS code
+		```
+		Loop: sll $t1, $s3, 2
+			add $t1, $t1, $s6
+			lw $t0, 0($t1)
+			bne $t0, $s5, Exit
+			addi $s3, $s3, 1
+			j Loop
+		Exit: ...
+		```
+
+- Basic Blocks
+	- A basic block is a sequence of instructios with
+		- No embedded branches (except at end)
+		- No branch targets (except at beginning)
+
+		![basic-blocks](./basic-blocks.png)
+
+		- A compiler identifies basci blocks for optimization
+		- An advanced processor can accelerate execution of basic blocks
+
+- More Conditional Operations
+	- Set result to 1 if a condition is true
+		- Otherwise, set to 0
+	- slt rd, rs, rt
+		- if(rs\<rt) rd = 1; else rd = 0;
+	- slti rt, rs ,constant
+		- if(rs\<constant) rt = 1; else rt = 0;
+	- Use in combination with beq, bne
+		```
+		slt $t0, $s1, $s2 # if ($s1 < $s2)
+		bne $t0, $zero, L # branch to L
+		```
+
+- Branch Instruction Design
+	- Why not blt, bge, etc?
+	- Hardware for <, >=, ... slower than =, !=
+		- Combining with branch involves more work per instruction, requiring a slower clock(clock period)
+		- All instructions penalized!
+	- beq and bne are the common case
+	- This is good design compromise
+
+- Signend vs Unsigned
+	- Siged comparison: slt, slti\
+	- Unsigned comparison: sltu, sltui
