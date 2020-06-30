@@ -66,7 +66,7 @@ path: 'computerArchitecture/202006242-instructions-language-of-the-computer'
 	- C code: f = (g + h) - (i + j);
 		-f,...,j in $s0,...,$s4
 	- Compiled MIPS code:
-		```
+		```mips
 		add $t0, $s1, $s2
 		add $t1, $s3, $s4
 		sub $s0, $t0, $t1
@@ -101,7 +101,7 @@ path: 'computerArchitecture/202006242-instructions-language-of-the-computer'
 	- Compiled MIPS code:
 		- Index 8 requires offset of 32
 			- 4 bytes per word
-				```
+				```mips
 				lw  $t0, 32($s3)    # lw: load word
 				add $s1, $s2, $t0
 				```
@@ -287,13 +287,13 @@ path: 'computerArchitecture/202006242-instructions-language-of-the-computer'
 
 - Compiling If Statements
 	- C code
-		```
+		```c
 		if (i==j) f = gh;
 		else f = g-h;
 		```
 		- f, g, ... in $s0, $s1, ...
 	- Compiled MIPS code
-		```
+		```mips
 			bne $s3, $s4, Else
 			add $s0, $s1, $s2
 			j Exit
@@ -303,12 +303,12 @@ path: 'computerArchitecture/202006242-instructions-language-of-the-computer'
 
 - Compiling Loop Statements
 	- C code
-		```
+		```c
 		while (save[i] == k) i += 1;
 		```
 		- i in $s3, k in $s5, address of save in $s6
 	- Compiled MIPS code
-		```
+		```mips
 		Loop: sll $t1, $s3, 2
 			add $t1, $t1, $s6
 			lw $t0, 0($t1)
@@ -336,7 +336,7 @@ path: 'computerArchitecture/202006242-instructions-language-of-the-computer'
 	- slti rt, rs ,constant
 		- if(rs\<constant) rt = 1; else rt = 0;
 	- Use in combination with beq, bne
-		```
+		```mips
 		slt $t0, $s1, $s2 # if ($s1 < $s2)
 		bne $t0, $zero, L # branch to L
 		```
@@ -352,3 +352,155 @@ path: 'computerArchitecture/202006242-instructions-language-of-the-computer'
 - Signend vs Unsigned
 	- Siged comparison: slt, slti\
 	- Unsigned comparison: sltu, sltui
+
+### 2.8 Supporting Procedures in Computer Hardware
+
+- Six Steps in Execution of a Procedure(프로시져 또는 함수)
+	1. Main routine (caller: 호출하는 함수) places parameters in a place where the procedure (callee: 호출당하는 함수) can access them(caller는 callee가 접근할 수 있는 곳에 매개변수를 위치시킨다.)
+		- $a0 - $a3: four argument registers
+	2. Caller는 calllee에게 control을 넘긴다.(callee가 실행된다.)
+	3. Callee는 필요한 저장공간(메모리)를 할당 받는다.
+	4. Callee는 해야할 일을 수행한다.
+	5. 할 일을 모두 마친 Callee는 결과값(return 값)을 caller가 접근할 수 있는 곳에 위치시킨다.
+		- $v0 - $v1: two value registers for result values
+	6. Callee가 caller에게 control을 넘긴다.
+		- $ra: one return address register to return to the point of origin
+
+- Register Usage
+	- $a0 - $a3: arguments(reg's 4 - 7)
+	- $v0, $v1: result values(reg's 2 and 3)
+	- $t0 - $t9: temporaries
+		- Can be overwritten by callee
+	- $s0 - $s7: saved
+		- Must be saved/restored by callee
+	- $gp: global pointer for static data(reg 28)
+	- $sp: stack pointer(reg 29)
+	- $fp: frame pointer(reg 30)
+	- $ra: return address(reg 31)
+
+- Procedure Call Instructions
+	- Procedure call: jump and link
+		- jal ProcedureLabel
+		- Address of following instruction put in $ra
+		- Jumps to target address
+	- Procedure return: jump register
+		- jr $ra
+		- Copies $ra to program counter (program counter란? 줄여서 pc라고도 불림, 현재 실행하고있는 명령어의 메모리 주소를 가리키는 레지스터)
+		- Can also be used for computed jumps
+			 - e.g., for case/switch statements
+
+- Leaf Procedure Example (Leaf Procedure: 함수(프로시져) 내부에서 다른 함수(프로시져)를 호출 하지 않는 함수(프로시져))
+	- C code
+		```c
+		int leaf_example (int g, h, i, j){
+			int f;
+			f = (g + h) - (i + j);
+			return f;
+		}
+		```
+	- Arguments g, ..., j in $a0, ..., $a3
+	- f in $s0 (hence, need to save $s0 on stack)
+	- Result in $v0
+	- MIPS code
+		```mips
+		leaf_example:
+		# Save $s0 on stack
+		addi $sp, $sp, -4
+		sw $s0, 0($sp) # 기존에 있을지 모르는 $s0 값을 스택 포인터에 저장
+		# Procedure body
+		add $t0, $a0, $a1
+		add $t1, $a2, $a3
+		sub $s0, $t0, $t1
+		# Result
+		add $v0, $s0, $zero # move 명령어와 같은 결과(add + $zero)
+		# Restore $s0
+		lw $s0, 0($sp) # 위에서 저장한 값 복구
+		addi $sp, $sp, 4
+		# Return
+		jr $ra
+		```
+
+- Non-Leaf Procedures
+	- Procedures that call other procedures
+	- For nested call, caller needs to save on the stack:
+		- Its return address
+		- Any arguments and temporaries needed after the call
+	- Restore from the stack after the call
+
+- Non-Leaf Procedure Example
+	- C code
+		```c
+		int fact (int n){
+			if (n < 1) return f;
+			else return n * fact(n - 1); 
+		}
+		```
+		- Argument n in $a0
+		- Result in $v0
+	- MIPS code
+		![non-leaf-procedure-mips-code](./non-leaf-procedure-mips-code.png)
+
+- Local Data on the Stack
+	![local-data-on-the-stack](./local-data-on-the-stack.png)
+	- Local data allocated by callee
+		- e.g., C automatic variables
+	- Procedure frame (activation record) (그림에서 보라색으로 칠해진 영역)
+		- Used by some compilers to manage stack storage
+
+- Memory Layout
+	![memory-layout](./memory-layout.png)
+	- Text program code
+	- Static data: global variables
+		- e.g., static variables in C, constant arrays and strings
+		- $gp initialized to address allowing +-offsets into this segment
+	- Dynamic data: heap
+		- E.g., malloc in C, new in Java
+	- Stack: automatic storage
+	- 우리가 코딩하다가 stackoverflow를 만나게 되는 경우? stack이 계속 쌓여 나가다가 dynamic data 영역을 침범하게 될 때
+	- $gp의 역햘: 여기서 static data의 중앙값을 가지지만 그 값은 프로세서에 따라 다를 수 있다. 하지만 그 목적(역할)은 static data에 수월하게 접근하기 위한 것으로 동일하다.
+
+### 2.9 Communicating with People
+
+- Character Data
+	- Byte-encoded character sets (1 byte로 표현)
+		- ASCII: 128 characters
+			- 95 graphic, 33 control
+		- Latin-1: 256 characters
+			- ASCII, +96 more graphic characters
+	- Unicode: 32-bit character set
+		- Used in Java, C++ wide characters, ...
+		- Most of the world's alphabets, plus symbols
+		- UTF-8, UTF-16: variable-length encodings(1 byte 이상의 값으로 표현)
+
+- Byte/Halfword Operations
+	- Could use bitwise operations
+	- MIPS byte/halfword load/store
+		- String processing is a common case
+			```mips
+			lb rt, offset(rs)	lh rt, offset(rs)
+			```
+		- Sign extend to 32 bits in rt
+			```mips
+			lbu rt, offset(rs)	lhu rt, offset(rs)
+			```
+		- Zero extend to 32 bits in rt
+			```mips
+			sb rt, offset(rs)	sh rt, offset(rs)
+			```
+		- Store just rightmost byte/halfword
+
+- String Copy Example
+	- C code
+		- Null-terminated string
+		```c
+		void strcpy (char x[], char y[]){
+			int i;
+			i = 0;
+			while((x[i]=y[i]) != '\0')
+				i += 1;
+		}
+		```
+		- Addresses of x, y in $a0, $a1
+		- i in $s0
+	- MIPS code
+		![string-copy-mips-code](./string-copy-mips-code.png)
