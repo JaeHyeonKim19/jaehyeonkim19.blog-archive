@@ -504,3 +504,119 @@ path: 'computerArchitecture/202006242-instructions-language-of-the-computer'
 		- i in $s0
 	- MIPS code
 		![string-copy-mips-code](./string-copy-mips-code.png)
+
+### 2.10 MIPS Addressing for 32-Bit Immediates and Addresses
+
+- 32-bit Constants
+	- Most constants are small
+		- 16-bit immediate is sufficient
+	- For the occasional 32-bit-constant
+		```mips
+		lhi rt, constant
+		```
+		- Copies 16-bit constant to left 16 bits of rt
+		- Clears right 16 bits of rt to 0
+		```mips
+		lhi $s0, 61
+		ori $s0, $s0, 2304
+		# 이와같이 두 개의 명령어를 사용해서 32bit 상수를 만들 수 있다.
+		```
+
+- Branch Addressing
+	- Branch instruction specify
+		- Opcode, two registers, target address
+		- Most branch targets are near branch
+			- Foward or backward
+		![branch-addressing](./branch-addressing.png)
+		- PC(Program Counter)-relative addressing
+			- Target address = PC + offset x 4
+			- PC already incremented by 4 by this time
+
+- Jump Addressing
+	- Jump (j and jal) targets could be anywhere in text segment
+		- Encode full address in instruction
+		![jump-addressing](./jump-addressing.png)
+	- (Pseudo)Direct jump addressing
+		- Target address = PC31...28 : (address x 4)
+
+- Branching Far Away
+	- If branch target is too far to encode with 16-bit offset, assembler rewrites code
+
+- Addressing Mode Summary
+	1. Immediate addressing ex) addi
+	2. Register addressing ex) R-type
+	3. Base addressing ex) lw/sw
+	4. PC-relative addressing ex) branch
+	5. Pseudodirect addressing ex) jump
+
+### 2.11 Parallelism and Instruction: Synchronization
+
+- Synchronization
+	- Two processors sharing an area of memory
+		- P1 writes, then P2 reads
+		- Data race if P1 and P2 don't synchronnize
+			- Result depends of order of access
+	- Hardware support required
+		- Atomic read/write meomory operation (어떤 오퍼레이션을 할 때 중간에 interrupt가 일어나지 않는 것)
+		- No other access to the location allowed between the read and write
+	- Could be a single instruction
+		- E.g., atomic swap of register <-> memory
+		- Or an atomic pair of instructions
+
+- Synchronization in MIPS
+	- Load linked: ll rt, offset(rs)
+	- Store conditional: sc rt, offset(rs)
+		- Succeeds if location not changed since the ll
+			- Returns 1 in rt
+		- Fails if locationn is changed
+			- Returns 0 in rt
+
+### 2.12 Translating and Starting a Program
+
+- Translation and Startup
+	![translation-and-startup](./translation-and-startup.png)
+
+- Assembler Pseudoinstructions
+	- Most assembler instructions represent machine instructions one-to-one
+	- Pseudoinstructions: figments of the assembler's imagination
+	- MIPS 어셈블러에는 수두인스트럭션이 존재한다. 실제 MIPS에는 존재하지 않는 명령어지만 MIPS에서 사용할 수 있는 가짜 명령어. 이런 경우 어셈블러가 해당되는 실제 MIPS 명령어로 바꿔준다. ex) move
+
+- Producing an Object Module
+	- Assembler(or compiler) translates program into machine instructions
+	- Provides information for building a complete program from the pieces
+		- Header: described contents of object module
+		- Text segment: translated instructions
+		- Static data segment: data allocated for the life of the program
+		- Relocation info: for contents that depend on absolute location of loaded program
+		- Symbol table: global definitions and external refs
+		- Debug info: for associating with source code
+
+- Linking Object Modules
+	- Produces an executable image
+		1. Merges segments
+		2. Resolve labels (determine their addresses)
+		3. Patch location-dependent and external refs
+	- Could leave location dependencies for fixing by a relocating loader
+		- But with virtual memory, no need to do this
+		- Program can be loaded into absolute location in virtual memory space
+		- virtual memory에 있는 절대 주소값을 사용하면 된다는 것(?)
+
+- Load a Program
+	- Load from image file on disk into memory
+		1. Read header to determine segment size
+		2. Create virtual address space
+		3. Copy text and intialized data into memory
+			- Or set page table entries so they can be faulted in
+		4. Set up arguments on stack
+		5. Initialize registers (including $sp, $fp, $gp)
+		6. Jump to startup routine
+			- Copies arguments to $a0, ... and calls main
+			- When main returns, do exit syscall
+
+- Dynamic Linking
+	- Only link/load library procedure when it is called
+		- Requires procedure code to be relocatable
+		- Avoids image bloat caused by static linking of all (transitively) referenced libraries
+		- Automatically picks up new library versions
+- Lazy Linkage
+	![lazy-linkage](./lazy-linkage.png)
