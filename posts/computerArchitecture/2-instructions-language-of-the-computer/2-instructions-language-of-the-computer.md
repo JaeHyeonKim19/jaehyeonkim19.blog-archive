@@ -620,3 +620,114 @@ path: 'computerArchitecture/202006242-instructions-language-of-the-computer'
 		- Automatically picks up new library versions
 - Lazy Linkage
 	![lazy-linkage](./lazy-linkage.png)
+
+### 2.13 A C Sort Example to Put it All Together
+
+- C Sort Example
+	- Illustrates use of assembly instructionns for a C bubble sort function
+	- Swap procedure (leaf)
+		```c
+		void swap(int v[], it k){
+			int temp;
+			temp = v[k];
+			v[k] = v[k+1];
+			v[k+1] = temp;
+		}
+		```
+		- v in $a0, k in $a1, temp i $t0
+
+		- In MIPS...
+			![the-procedure-swap](./the-procedure-swap.png)
+	- The Sort Procedure in C
+		- Non-leaf(calls swap)
+			```c
+			void sort (int v[], int n){
+				int i, j;
+				for(i = 0; i < n; i += 1) {
+					for(
+						j = i - 1,
+						j >= 0 && v[j] > v[j+1];
+					){
+						swap(v, j);
+					}
+				}
+			}
+			```
+			- v in $a0, k in $a1, i in $s0,j in $s1
+			- In MIPS...
+				![the-sort-procedure-in-c](./the-sort-procedure-in-c.png)
+		- The Full Procedure
+			![the-full-procedure](./the-full-procedure.png)
+
+- Effect of Compiler Optimization
+	![effect-of-compiler-optimization](./effect-of-compiler-optimization.png)
+
+- Compiler Benefits
+	- Comparing performance for bubble sort
+
+	|gcc opt|Relative performance|Clock cycles(M)|Instr cout(M)|CPI|
+	|---|---|---|---|---|
+	|None|1.00|158,615|114,938|1.38|
+	|O1(medium)|2.37|66,990|37,470|1.79|
+	|O2(full)|2.38|66,521|39,993|1.66|
+	|O3(proc mig)|2.41|65,747|44,993|1.46|
+
+	- O3가 명령어 수는 O1, O2에 비해 많지만 CPI가 제일 낮아 성능이 제일 좋다.
+
+- Lessons Learnt
+	- 명령어 수와 CPI 각각으로는 성능의 좋은 지표가 될 수 없다.
+	- Compiler optimization are sensitive to the algorithm
+	- Java/JIT compiled code is significantly faster than JVM interpreted
+		- Comparable to optimized C in some cases
+	- Nothing can fix a dumb algorithm!
+
+### 2.14 Arrays versus Pointers
+
+- Arrays vs Pointers
+	- Array indexing involves
+		- Multiplying index by element size
+		- Adding to array base address
+	- Pointers correspond directly to memory addresses
+		- Can avoid indexing complexity
+
+- Example: Clearing and Array
+	![example-clearing-and-array](./example-clearing-and-array.png)
+	- 예제에서 명령어 줄 수는 같지만 loop의 줄 수를 살펴보면 array의 경우는 6줄, pointer의 경우는 4줄이다. 따라서 반복 횟수가 많아질 수 록 pointer로 구현하는 것이 성능이 더 좋다.
+
+- Comparison of Array vs Ptr
+	- Multiply "strength reduced" to shift
+	- Array version requires shift to be inside loop
+		- Part of index calculation for incremented!
+		- c.f. incrementing pointer
+	- Compiler can achieve same effect as manual use of pointers
+		- Induction variable elimination
+		- Better to make program clearer and safer
+	- 결론: 컴파일러가 배열을 사용하더라도 포인터를 사용하는 것과 유사한 효과를 준다. 또한 포인터를 사용할 경우 프로그램을 이해하기 까다롭고 배열을 사용하는게 더 이해하기쉽고 버그가 적게 생기므로 배열을 사용하자.
+
+### 2.16 Real Stuff: ARM Instructions
+
+- ARM & MIPS Similarities
+
+	- ARM: the most popular embedded core
+	- Similar basic set of instructions to MIPS
+
+	||ARM|MIPS|
+	|---|---|---|
+	|Data announced|1985|1985|
+	|Instruction size|32 bits|32 bits|
+	|Address space|32-bit flat|32-bit flat|
+	|Data alignment|Aligned|Aligned|
+	|Data addressing modes|9|3|
+	|Registers|15 * 32-bit|31 * 32-bit|
+	|I/O|Memory mapped|Memory mapped|
+
+- Compare and Branch in ARM
+	- Uses condition codes for result of an arithmetic/logical instruction
+		- Negative, zero, carry, overflow
+		- Compare instructions to set condition codes without keeping the result
+	- Each instruction can be conditional
+		- Top 4 bits of instruction word: condition value
+		- Can avoid branches over single instructions
+
+- Instruction Encodeing
+	![instruction-encoding](./instruction-encoding.png)
