@@ -1,5 +1,5 @@
 ---
-title: '[자바]백준 1526 가장 큰 금민수'
+title: '[자바]백준 1526 가장 큰 금민수'
 date: 2020-07-19 09:00:00 +0900
 path: 'codingtest/20200719boj_1526_the_biggest_geumminsu'
 ---
