@@ -1,7 +1,7 @@
 ---
 title: '[2020 카카오 공채] 자물쇠와 열쇠'
 date: 2020-08-24 09:00:00 +0900
-path: 'codingtest/202008242020_kakao_blind_recruitment_lock_and_key'
+path: 'codingtest/20200824programmers-lock-and-key'
 ---
 
 ### 문제
