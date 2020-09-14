@@ -731,3 +731,69 @@ path: 'computerArchitecture/202006242-instructions-language-of-the-computer'
 
 - Instruction Encodeing
 	![instruction-encoding](./instruction-encoding.png)
+
+### 2.17 Real Stuff: x86 Instructions (Intel)
+
+- CISC (Complex Instruction Set Computer)
+
+- Complex instruction set makes implementation difficult
+	- Hardware translates Instruction to simpler microoperations
+		- Simple instructions: 1-1
+		- Complex instructions: 1-many
+	- Microengine similar to RISC
+	- Market share makes this economically viable
+- Comparable performance to RISC
+	- Compilers avoid complex instructions
+
+### 2.18 Real Stuff: ARM v8 (64-bit) Instructions
+
+- In moving to 64-bit, ARM did a complete overhaul
+- ARM v8 resembles MIPS
+	- Changes from v7:
+		- No conditional execution field
+		- Immediate fields is 12-bit constant
+		- Dropped load/store multiple
+		- PC is no longer a GPR
+		- GPR set expanded to 32
+		- Addressing modes work for all word size
+		- Divide instruction
+		- Branch if equal/branch if not equal instructions
+
+### 2.19 Fallacies and Pitfalls
+
+#### Fallacies
+
+- Powerful instruction -> higher performance
+	- Fewer instructions required
+	- But complex instructions are hard to implement
+	- Compilers are good at making fast code from simple instructions
+
+- Use assembly code for high performance
+	- But modern compilers are better at dealing with mordern processors
+	- More lines of code -> more errors and less productivity
+
+- Backward compatibility -> instruction set doesn't change
+	- But they do accrete more instructions
+
+#### Pitfalls
+
+- Sequentail words are not at sequential addresses
+	- Increment by 4, not by 1!
+
+- Keeping a pointer to an automatic variable after procedure returns
+	- e.g., passing pointer back via an argument
+	- Pointer becomes invalid when stack popped
+
+### 2.20 Concluding Remarks
+
+- Design principles
+	1. Simplicity favors regularity
+	2. Smaller is faster
+	3. Make the common casse fast
+	4. Good design demands good compromises
+
+- Layers of software/hardware
+	- Compiler, assembler, hardware
+
+- MIPS: typical of RISC ISAs
+	- c.f. x86
