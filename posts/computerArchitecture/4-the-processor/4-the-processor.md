@@ -165,3 +165,101 @@ path: 'computerArchitecture/202009164-the-processor'
 			- Can calculate address in 3nd stage, access memory in 4th stage
 		- Alignment of memory operands
 			- Memory access takes only one cycle
+
+### 4.5 An Overview of Pipelining
+
+- Hazards
+	- Situations that prevent starting the next instruction in the next cycle
+	- Structure hazards
+		- A required resource is busy
+	- Data hazard
+		- Need to wait for previous instruction to complete its data read/write
+	- Control hazard
+		- Deciding on control action depends on previous instruction
+
+- Structure Hazards
+	- Conflict for use of a resource
+	- In MIPS pipeline with a signle memory
+		- Load/Store requires data access
+		- Insturction fetch would have to stall for that cycle
+			- Would cause a pipeline "bubble"
+		- Hence, pipelined datapaths require separate instruction/data memories
+			- Or seperate instruction/data caches
+
+- Data Hazards
+	- An instruction depends on completion of data access by a previous instruction
+		```mips
+		add $s0, $t0, $t1
+		sub $t2, $s0, $t3
+		```
+		![data-hazards](./data-hazards.png)
+
+- Fowarding
+	- Use result when it is computed
+		- Don't wait for it to be stored in a register
+		- Requires extra connections in the datapath
+		![forwarding](./forwarding.png)
+
+- Load-Use Data Hazard
+	- Can't always avoid stalls by forwarding
+		- If value not computed when needed
+		- Can't forward backward in time!
+		![load-use-data-hazard](./load-use-data-hazard.png)
+
+- Code Scheduling to Avoid Stalls
+	- Reorder code to avoid use of load result in the next instruction
+	- C code for A = B + E; C = B + F;
+	![code-scheduling-to-avoid-stalls](./code-scheduling-to-avoid-stalls.png)
+	- Data hazard는 RAW(read after write)에 발생한다
+		- code dependency의 종류
+			1. RAW
+			2. RAR
+			3. WAR
+			4. WAW
+	
+- Control Hazards
+	- Branch determines flow of control
+		- Fetching next instruction depends on branch outcome
+		- Pipeline can't always fetch correct instruction
+			- Still working on ID stage of branch
+	- In MIPS pipeline
+		- Need to compare registers and compute target early in the pipeline
+		- Add hardware to do it in ID stage
+
+- Stall on Branch
+	- Wait until branch outcome determined before fetching next instruction
+	![stall-on-branch](./stall-on-branch.png)
+
+- Branch Prediction
+	- Longer pipelines can't readily determine branch outcome early
+		- Stall penalty becomes unacceptable
+	- Predict outcome of branch
+		- Only stall if prediction is wrong
+	- In MIPS pipeline
+		- Can predict branches not taken
+		- Fetch instruction after branch, with no delay
+
+- MIPS with Predict Not Taken
+	![mips-with-predict-not-taken](./mips-with-predict-not-taken.png)
+
+- More-Realistic Branch Prediction
+	- Static branch prediction
+		- Based on typical branch behavior
+		- Example: loop and if-statement branches
+			- Predict backward branches taken
+			- Predict forward branches not taken
+	- Dynamic branch prediction
+		- Hardware measures actual branch behavior
+			- e.g., record recent history of each branch
+		- Assume future behavior will continue the tred
+			- When wrong, stall while re-fetching, and update history
+
+- Pipeline Summary
+	- Pipelining improves performance by increasing instruction throughput
+		- Executes multiple instructions in parallel
+		- Each instruction has the same latency
+	- Subject to hazards
+		- Structure, data, control
+	- Instruction set design affects complexity of pipeline implementation
+
+### 4.6 Pipelined Datapath and Control
