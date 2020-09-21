@@ -263,3 +263,38 @@ path: 'computerArchitecture/202009164-the-processor'
 	- Instruction set design affects complexity of pipeline implementation
 
 ### 4.6 Pipelined Datapath and Control
+
+- MIPS Pipelined Datapath
+	![mips-pipelined-datapath](./mips-pipelined-datapath.png)
+
+- Pipeline registers
+	- Need registers between stages
+		- To hold information produced in previous cycle
+	![pipeline-registers](./pipeline-registers.png)
+
+- Pipeline Operation
+	- Cycle-by-cycle flow of instructions through the pipelined datapath
+		- "Single-clock-cycle" pipeline diagram
+			- Shows pipeline usage in a signle cycle
+			- Highlight resources used
+		- c.f. "multi-clock-cycle" diagram
+			- Graph of operation over time
+	
+- Multi-Cycle Pipeline Diagram
+	- Form showing resource usage
+	![multi-cycle-pipeline-diagram](multi-cycle-pipeline-diagram.png)
+	- Traditional form
+	![multi-cycle-pipeline-diagram-traditional-form](./multi-cycle-pipeline-diagram-traditional-form.png)
+
+- Single-Cycle Pipeline Diagram
+	- State of pipeline in a given cycle
+	![single-cycle0pipeline-diagram](./single-cycle-pipeline-diagram.png)
+
+- Pipelined Control (Simplified)
+	![pipelined-control-simplified](./pipelined-control-simplified.png)
+
+- Pipelined Control
+	- Control signals derived from instruction
+		- As in signle-cycle implementation
+	![pipelined-control](./pipelined-control.png)
+	![pipelined-control-datapath](./pipelined-control-datapath.png)
