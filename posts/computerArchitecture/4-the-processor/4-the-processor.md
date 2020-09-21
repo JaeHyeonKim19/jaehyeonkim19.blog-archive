@@ -60,7 +60,108 @@ path: 'computerArchitecture/202009164-the-processor'
 	- We will build a MIPS datapath incrementally
 		- Refining the overview design
 
+- R-Format Instructions
+	- Read two register operands
+	- Perform arithmetic/logical operation
+	- Write register result
+
+- Load/Store Instructions
+	- Read register operands
+	- Calculate address using 16-bit offset
+		- Use ALU, but [sign-extend](https://en.wikipedia.org/wiki/Sign_extension) offset
+	- Load: Read memory and update register
+	- Store: Write register value to memory
+
+- Branch Instructions
+	- Read register operands
+	- Compare operands
+		- Use ALU, subtract and check Zero output
+	- Calculate target address
+		- Sign-extend displacement
+		- Shift left 2 places (word displacement)
+		- Add to PC + 4
+			Already calculated by instruction fetch
+
 - Full Datapath
 	![full-datapath](./full-datapath.png)
 
-	
+### 4.4 A Simple Implement Scheme
+
+- ALU Control
+	- ALU used for
+		- Load/Store: F = add
+		- Branch: F = subtract
+		- R-type: F depends on funct field
+	|ALU control|Function|
+	|---|---|
+	|0000|AND|
+	|0001|OR|
+	|0010|add|
+	|0110|substract|
+	|0111|set-on-less-than|
+	|1100|NOR|
+	- Assume 2-bit ALUOp derived from opcode
+		- Combinational logic derives ALU control
+	![alu-control](./alu-control.png)
+
+- The Main Control Unit
+	- Control signals derived from instruction
+	![the-main-control-unit](./the-main-control-unit.png)
+
+- Datapath With Control
+	![datapath-with-control](./datapath-with-control.png)
+
+- Performance Issues
+	- Longest delay determines clock period
+		- Critical path: load instruction
+		- Instruction memory -> register file -> ALU -> data memory -> register file
+	- Not feasible to vary period for different instructions
+	- Violates design principle
+		- Making the common case fast
+	- We will improve performance by pipelining
+
+### 4.5 An Overview of Pipelining
+
+- Pipelined laundry: overlapping execution
+	- Parallelism improves performance
+
+![piplelining-analogy](./pipelining-analogy.png)
+
+- MIPS Pipeline
+	- Five stages, one step per stage
+		1. IF: Instruction fetch from memory
+		2. ID: Instruction decode & register read
+		3. EX: Execute operation or calculate address
+		4. MEM: Access memory operand
+		5. WB: Write result back to register
+
+- Pipeline Performance
+	- Assume time for stages is
+		- 100ps for register read or write
+		- 200ps for other stages
+	- Compare pipelined datapath with single-cycle datapath
+
+	![pipeline-performance](./pipeline-performance.png)
+
+- Pipeline Performance
+	![pipeline-performance-1](./pipeline-performance-1.png)
+
+- Pipeline Speedup
+	- If all stages are balanced
+		- i.e., all take the same time
+		- `Time between instructions(pipelined) = Time between instructions(nonpipelined) / Number of stages`
+		- If not balanced, speedup is less
+		- Speedup due to increased throughput
+			- Latency (time for each instruction) does not decrease
+
+- Pipelining and ISA Design
+	- MIPS ISA designed for pipelining
+		- All instructions are 32-bits
+			- Easier to fetch and decode in one cycle
+			- c.f. x86: 1 - to 17 byte instructions
+		- Few and regular instruction formats
+			- Can decode and read registers in one step
+		- Load/store addressing
+			- Can calculate address in 3nd stage, access memory in 4th stage
+		- Alignment of memory operands
+			- Memory access takes only one cycle
