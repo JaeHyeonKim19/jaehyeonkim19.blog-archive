@@ -298,3 +298,109 @@ path: 'computerArchitecture/202009164-the-processor'
 		- As in signle-cycle implementation
 	![pipelined-control](./pipelined-control.png)
 	![pipelined-control-datapath](./pipelined-control-datapath.png)
+
+### 4.7 Data Hazards: Forwarding vs Stalling
+
+- Data Hazards in ALU Instructions
+	- Consider this sequence:
+		```mips
+		sub $2, $1, $3
+		and $12, $2, $5
+		or $13, $6, $2
+		add $14, $2, $2
+		sw $15, 100($2)
+		```
+	- We can resolve hazards with forwarding
+		- How do we detect when to forward?
+
+- Dependencies & Forwarding
+	![dependencies-and-forwarding](./dependencies-and0forwarding.png)
+
+- Detecting the Need to Forward
+	- Pass register numbers along pipeline
+		- e.g., ID/EX.RegisterRs = register number for Rs sitting in ID/EX pipeline register
+	- ALU operand register numbers in EX stage are given by
+		- ID/EX.RegisterRs, ID/EX.RegisterRt
+	- Data hazards when
+		1. EX/MEM.RegisterRd = ID/EX.RegisterRs
+		2. EX/MEM.RegisterRd = ID/EX.RegisterRt
+		3. MEM/WB.RegisterRd = ID/EX.RegisterRs
+		4. MEM/WB.RegisterRd = ID/EX.RegisterRt
+
+- Detecting the Need to Foward
+	- But only if forwarding instruction will write to a register!
+		- EX/MEM.RegWrite, MEM/WB.RegWrite
+	- And only if Rd for that instruction is not $zero
+		- EX/MEM.RegisterRd != 0
+		- MEM/WB.RegisterRd != 0
+
+- Forwarding Paths
+	![forwarding-paths](./forwarding-paths.png)
+
+- Forwarding Conditions
+	![forwarding-conditions](./forwwarding-conditions.png)
+
+- Double Data Hazard
+	- Consider the sequence
+		```mips
+		add $1, $1, $2
+		add $1, $1, $3
+		add $1, $1, $4
+		```
+	- Both hazards occur
+		- Want to use the most recent
+	- Revise MEM hazard condition
+		- Only fwd if EX hazard condition isn't true
+	
+- Revised Forwarding Condition
+	![revised-forwarding-condition](./revised-forwarding-condition.png)
+
+- Datapath with Forwarding
+	![datapath-with-forwarding](./datapath-with-forwarding.png)
+
+- Load-Use Data Hazard
+	![load-use-data-hazard-diagram](./load-use-hazard-diagram.png)
+
+- Load-Use Hazard Detection
+	- Check when using instruction is decoded in ID stage
+	- ALU operand register numbers in ID stage are given by
+		- IF/ID.RegisterRs, IF/ID.RegisterRt
+	- Load-use hazard when
+		- ID/EX.MemRead and ((ID/EX.RegisterRt = IF/ID.RegisterRs) or (ID/EX.RegisterRt = IF/ID.RegisterRt))
+	- If detected, stall and insert bubble
+
+- How to Stall the Pipeline
+	- Force control values in ID/EX register to 0
+		- EX, MEM, and WB do nop (no-operation)
+	- Prevent update of PC and IF/ID register
+		- Using instruction is decoded again
+		- Following instruction is fetched again
+		- 1-cycle stall allows MEM to read data for lw
+			- Can subsequently forward to EX stage
+
+- Stall/Bubble in the Pipeline
+	- simplified
+	![stall-bubble-in-the-pipeline](./stall-bubble-in-the-pipeline.png)
+	- real
+	![stall-bubble-in-the-pipeline-real](./stall-bubble-in-the-pipeline-real.png)
+
+- Datapath with Hazard Detection
+	![datapath-with-hazard-detection](./datapath-with-hazard-detection.png)
+
+- Stalls and Performance
+	- Stalls reduce performance
+		- But are required to get correct results
+	- Compiler can arrange code to avoid hazards and stalls
+		- Requires knowledge of the pipeline structure
+
+- Branch Hazards
+	- If branch outcome determined in MEM
+		![branch-hazards](./branch-hazards.png)
+
+- Reducing Branch Delay
+	- Move hardware to determine outcome to ID stage
+		- Target address adder
+		- Register address adder
+
+- Example: Branch Taken
+	![example-branch-taken](./example-branch-taken.png)
