@@ -314,7 +314,7 @@ path: 'computerArchitecture/202009164-the-processor'
 		- How do we detect when to forward?
 
 - Dependencies & Forwarding
-	![dependencies-and-forwarding](./dependencies-and0forwarding.png)
+	![dependencies-and-forwarding](./dependencies-and-forwarding.png)
 
 - Detecting the Need to Forward
 	- Pass register numbers along pipeline
@@ -404,3 +404,139 @@ path: 'computerArchitecture/202009164-the-processor'
 
 - Example: Branch Taken
 	![example-branch-taken](./example-branch-taken.png)
+
+### 4.8 Control Hazards
+
+- Data Hazards for Branches
+	- If a comparison register is a destination of 2nd or 3rd preceding ALU instruction
+	![data-hazards-for-branches](./data-hazards-for-branches.png)
+	- Can resolve using forwarding
+	- If a comparison register is a destination of preceding ALU instruction or 2nd preceding load instruction
+		- Need 1 stall cycle
+	![data-hazards-for-branches-1-stall](./data-hazards-for-branches-1-stall.png)
+	- If a comparison register is a destination of immediately preceding load instruction
+		- Need 2 stall cycles
+	![data-hazards-for-branches-2-stall](./data-hazards-for-branches-2-stall.png)
+
+- Dynamic Branch Prediction
+	- In deeper and superscalar pipelines, branch penalty is more significant
+	- Use dynamic prediction
+		- Branch prediction buffer (aka branch history table)
+		- Indexed by recent branch instruction addresses
+		- Stores outcome (taken/not taken)
+		- To execute a branch
+			- Check table, expect the same outcome
+			- Start fetching from fall-through or target
+			- If wrong, flush pipeline and flip prediction
+
+- 1-Bit Predictor: Shortcoming
+	- Inner loop branches mispredicted twice
+		- Mispredict as taken on last iteration of inner loop
+		- Then mispredict as not taken on first iteration of inner loop next time around
+
+- 2-Bit predictor
+	- Only change prediction on two successive mispredicitions
+	![2-bit-predictor](./2-bit-predictor.png)
+
+- Calculating the Branch Target
+	- Even with predictor, still need to calculate the target address
+		- 1-cycle penalty for a taken branch
+	- Branch target buffer
+		- Cache of target addresses
+		- Indexed by PC when instruction fetched
+			- If hit and instruction is branch predicted taken, can fetch target immediately
+
+### 4.9 Exceptions
+
+- Exceptions and Interrupts
+	- "Unexpected" events requiring change in flow of control
+		- Different ISAs use the terms differently
+	- Exception
+		- Arises within the CPU
+			- e.g., undefined opcode, overflow, syscall, ...
+	- Interrupt
+		- From an external I/O controller
+	- Trap (Software Interrupt)
+		- System call을 사용할 때 발생, 소프트웨어가 명령어를 수행할 때 interrupt가 발생하는 것
+	- Dealing with them without sacrificing performance is hard
+
+- Handling Exceptions
+	- In MIPS exceptions managed by a System Control Coprocessor (CP0)
+	- Save PC of offending (or interrupted) instruction
+		- In MIPS: Exception Program Counter (EPC)
+	- Save indication of the problem
+		- In MIPS: Cause register
+		- We'll assume 1-bit
+			- 0 for undefined opcode,1 for overflow
+	- Jump to handler at 8000 00180
+
+- An Alternate Mechanism
+	- Vectored Interrupts
+		- Handler address determined by the cause
+	- Example:
+		- Undefined opcode: C000 0000
+		- Overflow: C000 0020
+		- ...: C000 0040
+	- Instructions either
+		- Deal with the interrupt, or
+		- Jump to real handler
+
+- Handler Actions
+	- Read cause, and transfer to relevant handler
+	- Determine action required
+	- If restartable
+		- Take corrective action
+		- use EPC to return to program
+	- Otherwise
+		- Terminate program
+		- Report error using EPC, cause, ...
+
+- Exceptions in a Pipeline
+	- Another form of control hazard
+	- Consider overflow on add in EX stage
+		- add $1, $2, $1
+		- Prevent $1 from being clobbered
+		- Complete previous instructions
+		- Flush add and subsequent instructions
+		- Set Cause and EPC register values
+		- Transfer control to handler
+	- Similar to mispredicted branch
+		- Use much of the same hardware
+
+- Pipeline with Exceptions
+	![pipeline-with-exceptions](./pipeline-with-exceptions.png)
+
+- Exception Properties
+	- Restartable exceptions
+		- Pipeline can flush the instruction
+		- Handler executes, then returns to the instruction
+			- Refetched and executed from scratch
+	- PC saved in EPC register
+		- Identifies causing instruction
+		- Actually PC + 4 is saved
+			- Handler must adjust
+
+- Exception Example
+	![exception-example](./exception-example.png)
+	![exception-example-flushed](./exception-example-flushed.png)
+
+- Multiple Exceptions
+	- Pipelining overlaps multiple instructions
+		- Could have multiple exceptions at once
+	- Simpe approach: deal with exception from earliest instruction
+		- Flush subsequent instructions
+		- "Precise" exceptions
+	- In complex pipelines
+		- Multiple instructions issued per cycle
+		- Out-of-order completion
+		- Maintaining precise exceptions is difficult
+
+- Imprecise Exceptions
+	- Just stop pipeline and save state
+		- Including exception cause(s)
+	- Let the handler work out
+		- Which instruction(s) had exceptions
+		- Which to complete or flush
+			- May require "manual" completion
+	- Simplifies hardware, but more complex handler software
+	- Not feasible for complex multiple-issue out-of-order pipelines
