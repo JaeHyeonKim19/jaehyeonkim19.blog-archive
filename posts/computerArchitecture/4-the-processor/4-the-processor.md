@@ -540,3 +540,218 @@ path: 'computerArchitecture/202009164-the-processor'
 			- May require "manual" completion
 	- Simplifies hardware, but more complex handler software
 	- Not feasible for complex multiple-issue out-of-order pipelines
+
+### 4.10 Parallelism via Instructions
+
+- Instruction-Level Parallelism (ILP)
+	- Pipelining: executing multiple instructions in parallel
+	- To increase ILP
+		- Deeper pipeline
+			- Less work per stage -> shorter clock cycle
+		- Multiple issue
+			- Replicate pipeline stages -> multiple pipelines
+			- Start multiple instructions per clock cycle
+			- CPI < 1, so use Instructions Per Cycle (IPC)
+			- E.g., 4GHz 4-way multiple-issue
+				- 16 BIPS, peak CPI = 0.25, peak IPC = 4
+			- But dependencies reduce this in practice
+
+- Multiple Issue
+	- Static multiple issue
+		- Compiler groups instructions to be issued together
+		- Packages them into "issue slots"
+		- Compiler detects and avoids hazards
+	- Dynamic multiple issue
+		- CPU examines instruction stream and cooses instructinos to issue each cycle
+		- Compiler can help by reordering instructions
+		- CPU resolves hazards using advanced techniques at runtime
+
+- Speculation
+	- "Guess" what to do with an instruction
+		- Start operation as soon as possible
+		- Check whether guess was right
+			- If so, complete the operation
+			- If not, roll-back and do the right thing
+	- Common to static and dynamic multiple issue
+	- Examples
+		- Speculate on branch outcome
+			- Roll back if path taken is different
+		- Speculate on load
+			- Roll back if location is updated
+
+- Compiler/Hardware Speculation
+	- Compiler can reorder instructions
+		- e.g., move load before branch
+		- Can include "fix-up" instructions to recover from incorrect guess
+	- Hardware can loock ahead for instructions to execute
+		- Buffer results until it determines they are actually needed
+		- Flush buffers on incorrect speculation
+
+- Speculation and Exceptions
+	- What if exception occurs on a speculatively executed instruction?
+		- e.g., speculative load before null-pointer check
+	- Static speculation
+		- Can add ISA support for deferring exceptions
+	- Dynamic speculation
+		- Can buffer exceptions untill instruction completion (which may not occur)
+
+- Static Multiple Issue
+	- Compiler groups instructions into "issue packets"
+		- Group of instructions that can be issued on a signle cycle
+		- Determined by pipeline resources required
+	- Think of an issue packet as a very long instruction
+		- Specifies multiple concurrent operations
+			- Very Long Instruction Word (VLIW)
+
+- Scheduling Static Multiple Issue
+	- Compiler must remove some/all hazards
+		- Reorder instructions into issue packets
+		- No dependencies with a packet
+		- Possibly some dependencies between packets
+			- Varies between ISAs; compiler must know!
+		- Pad with nop if necessary
+
+- MIPS with Static Dual Issue
+	- Two-issue packets
+		- One ALU/branch instruction
+		- One load/store instruction
+		- 64-bit aligned
+			- ALU/branch, then load/store
+			- Pad an unused instruction with nop
+		![mips-with-static-dual-issue](./mips-with-static-dual-issue.png)
+
+- MIPS with Static Dual Issue (Datapath)
+	![mips-with-static-dual-issue-datapath](./mips-with-static-dual-issue-datapath.png)
+
+- Hazards in the Dual-Issue MIPS
+	- More instructions executing in parallel
+	- EX data hazard
+		- Forwarding avoided stalls with single-issue
+		- Now can't use ALU result in load/store in same packet
+			```mips
+			add $t0, $s0, $s1
+			load $s2, 0($t0)
+			```
+			- split into two packets, effectively a stall
+		- Load-use hazard
+			- Still one cycle use latency, but now two instructions
+		- More aggressive scheduling required
+
+- Scheduling Example
+	- Schedule this for d ual-issue MIPS
+		![scheduling-example](./scheduling-example.png)
+		- IPC = 5/4 = 1.25 (c.f. peak IPC = 2)
+
+- Loop Unrolloing
+	- pass
+
+- Dynamic Multiple Issue
+	- "Superscalar" processors
+	- CPU decides whether to issue 0, 1, 2, ... each cycle
+		- Avoiding structural and data hazards
+	- Avoids the need for compiler scheduling
+		- Though it may still help
+		- Code semantics ensured by the CPU
+
+- Dynamic Pipeline Scheduling
+	- Allow the CPU to execute instructions out of order to avoid stalls
+		- But commit result to registers in order
+		- Example
+			```mips
+			lw $t0, 20($s2)
+			addu $t1, $t0, $t2
+			sub $s4, $s4, $t3
+			slti $t5, $s4, 20
+			```
+			- Can start sub while addu is waiting for lw
+
+- Dynamically Scheduled CPU
+	![dynamically-scheduled-cpu](./dynamically-scheduled-cpu.png)
+
+- Register Renaming
+	- Reservation stations and reorder buffer effectively provide register renaming
+	- On instruction issue to reservation station
+		- If operand is available in register file or reorder buffer
+			- Copied to reservation station
+			- No longer required in the register; can be overwritten
+		- If operand is not yet available
+			- It will be provided to the reservation station by a function unit
+			- Register update may not be required
+
+- Speculation
+	- Predict branch and continue issuing
+		- Don't commit until branch outcome determined
+	- Load speculation
+		- Avoid load and cache miss delay
+			- predict the effective address
+			- predict loaded value
+			- Load before completing outstanding stores
+			- Bypass stored values to load unit
+		- Don't commit load until speculation cleared
+
+- Why Do Dynamic Scheduling?
+	- Why not just let the compiler schedule code?
+		- Not all stalls are predicable
+			- e.g., cache misses
+		- Can't always schedule around branches
+			- Branch outcome is dynamically determined
+		- Different implementations of an ISA have different latencies and hazards
+
+- Does Multiple Issue Work?
+	- Yes, but not as much as we'd like
+	- Programs have real dependencies that limit ILP
+	- Some depnedencies are hard to eliminate
+		- e.g., pointer aliasing
+	- Some parallelism is hard to expose
+		- Limited window size during instruction issue
+	- Memory delays and limited bandwith
+		- Hard to keep pipelines full
+	- Speculation can help if done well
+
+- Power Efficiency
+	- Complexity of dynamic scheduling and speculations requires powew
+	- Multiple simpler cores may be better
+
+### 4.11 Real Stuff: The ARM Cortex-A8 and Intel COre i7 Pipelines
+
+- pass
+
+### 4.12 Instruction-Level Parallelism and Matrix Multiply
+
+- pass
+
+### 4.14 Fallacies and Pitfalls
+
+- Fallacies
+	- Pipelining is easy (!)
+		- The basic idea is easy
+		- The devil is in the details
+			- e.g., detecting data hazards
+	- Pipelining is independent of technology
+		- So why haven't we always done pipelining?
+		- More transistors make more advanced techniques feasible
+		- Pipeline-realted ISA design needs to take account of technology trends
+			- e.g., predicated instructions
+
+- Pitfalls
+	- Poor ISA design can make pipelining harder
+		- e.g., complex instruction sets (VAX, IA-32)
+			- Significant overhead to make pipelining work
+			- IA-32 micro-op approach
+		- e.g., complex addressing modes
+			- Register update side effects, memory indirection
+		- e.g., delayed branches
+			- Advanced pipelines have long delay slots
+
+### 4.15 Concluding Remarks
+
+- Concluding Remarks
+	- ISA influences design of datapath and control
+	- Datapath and control influence design of ISA
+	- Pipelining improves instructino throughput using parallelism
+		- More instructions completed per second
+		- Latency for each instruction not reduced
+	- Hazards: structural, data, control
+	- Multiple issue and dynamic scheduling (ILP)
+		- Dependencies limit achievable parallelism
+		- Complexity leads to the power wall
