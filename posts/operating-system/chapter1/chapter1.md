@@ -1,7 +1,7 @@
 ---
 title: '[운영체제] 운영체제 서론'
 date: 2020-10-14 09:00:00 +0900
-path: 'operatingSystem/20201014operating-system-introduction'
+path: 'operating-system/20201014operating-system-introduction'
 ---
 
 > 본 글은 경성대학교 양희재 교수님의 [운영체제](http://www.kocw.net/home/search/kemView.do?kemId=978503) 강의를 듣고 작성된 글입니다.
