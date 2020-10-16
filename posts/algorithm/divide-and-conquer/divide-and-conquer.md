@@ -22,7 +22,7 @@ path: 'algorithm/20201015divide-and-conquer'
 
 ## 예제
 
-- [[자바]백준 2630 색종이 만들기]https://jaehyeonkim19.github.io/codingtest/boj-2630-make-colored-paper/2020-10-16%2009:00:00%20+0900)
+- [[자바]백준 2630 색종이 만들기](https://jaehyeonkim19.github.io/codingtest/boj-2630-make-colored-paper/2020-10-16%2009:00:00%20+0900)
 - [[자바]백준 1992 쿼드트리](https://jaehyeonkim19.github.io/codingtest/boj-1992-quad-tree/2020-10-16%2009:00:00%20+0900)
 
 ## 참고
