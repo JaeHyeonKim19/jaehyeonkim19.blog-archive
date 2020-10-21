@@ -16,64 +16,55 @@ path: codingtest/20201016boj-1992-quad-tree'
 
 ```java
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.StringTokenizer;
 
 public class Main{
-	private static int[][] paper;
-	private static int bluePaper = 0;
-	private static int whitePaper = 0;
-	private static final int WHITE = 0;
-	private static final int BLUE = 1;
-	private static final int[][] coordinates = {{0, 0}, {1, 0}, {0, 1}, {1, 1}};
+	private static char[][] image;
+	private static StringBuilder answer;
 	
-	private static boolean isOneColor(int x, int y, int n) {
-		int standardColor = paper[x][y];
-		for(int i = x; i < x + n; i++) {
-			for(int j = y; j < y + n; j++) {
-				if(standardColor != paper[i][j]) return false;
+	
+	private static void compress(int range, int x, int y) {
+		boolean canCompress = true;
+		char standard = image[x][y];
+		for(int i = 0; i < range; i++) {
+			for(int j = 0; j < range; j++) {
+				if(image[x + i][y + j] != standard) {
+					canCompress = false;
+					break;
+				}
 			}
+			if(!canCompress) break;
 		}
-		return true;
-	}
-	
-	private static void checkAndCutPaper(int x, int y, int n) {
-		if (isOneColor(x, y, n)) {
-			if(paper[x][y] == BLUE) {
-				bluePaper++;
-				return;
-			}
-			whitePaper++;
+		
+		if(canCompress) {
+			answer.append(standard);
 			return;
 		}
 		
-		int nextN = n / 2;
-		for(int i = 0; i < coordinates.length; i++) {
-			checkAndCutPaper(x + coordinates[i][0] * nextN, y + coordinates[i][1] * nextN, nextN);
-		}
+		answer.append("(");
+		compress(range / 2, x, y);
+		compress(range / 2, x, y + range / 2);
+		compress(range / 2, x + range / 2, y);
+		compress(range / 2, x + range / 2, y + range / 2);
+		answer.append(")");
 	}
 	
-	public static void main(String args[]) throws IOException{
+	public static void main(String args[]) throws IOException {
+		answer = new StringBuilder();
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		int n = Integer.parseInt(br.readLine());
-		paper = new int[n][n];
-		StringTokenizer st;
+		image = new char[n][n];
 		for(int i = 0; i < n; i++) {
-			st = new StringTokenizer(br.readLine());
+			String row = br.readLine();
 			for(int j = 0; j < n; j++) {
-				paper[i][j] = Integer.parseInt(st.nextToken());
+				image[i][j] = row.charAt(j);
 			}
 		}
 		
-		checkAndCutPaper(0, 0, n);
+		compress(n, 0, 0);
 		
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-		bw.append(whitePaper + "\n" + bluePaper);
-		bw.flush();
+		System.out.print(answer.toString());
 	}
 }
 ```
