@@ -28,7 +28,7 @@ exports.createPages = async ({ actions, graphql }) => {
       context: {
         html: node.html,
         title: node.frontmatter.title,
-        date: node.frontmatter.date,
+        date: node.frontmatter.date.split(" ")[0],
       },
       component: path.resolve(__dirname, './src/templates/PostTemplate.jsx'),
     });
