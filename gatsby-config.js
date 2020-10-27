@@ -54,12 +54,12 @@ module.exports = {
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        name: `gatsby-starter-default`,
-        short_name: `starter`,
+        name: `JaeHyeonKim19-dev-blog`,
+        short_name: `JaeHyeonKim19`,
         start_url: `/`,
-        background_color: `#663399`,
-        theme_color: `#663399`,
-        display: `minimal-ui`,
+        background_color: `#000000`,
+        theme_color: `#000000`,
+        display: `fullscreen`,
         icon: `src/images/blog-icon.png`, // This path is relative to the root of the site.
       },
     },
