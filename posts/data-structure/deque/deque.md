@@ -45,6 +45,7 @@ public class MyDeque<E>{
 		if(this.tail == null) {
 			this.tail = newTailNode;
 			this.head = newTailNode;
+			return;
 		}
 		newTailNode.setHead(this.tail);
 		this.tail.setTail(newTailNode);
